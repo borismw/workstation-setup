@@ -1,0 +1,11 @@
+- name: install base packages
+  tags: packages, base
+  package:
+    name:
+      - apt-transport-https
+      - zsh
+      - neovim
+      - tmux
+      - gpg
+      - scdaemon
+      - snapd

@@ -1,0 +1,13 @@
+- name: install packages for installing ruby gems
+  tags: build, dev, gem
+  package:
+    name:
+      - build-essential
+      - ruby
+      - ruby-dev
+
+- name: install fpm as ruby gem
+  community.general.gem:
+    name: fpm
+    state: latest
+    user_install: no
