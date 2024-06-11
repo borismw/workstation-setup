@@ -1,0 +1,20 @@
+---
+
+- name: Ensure the correct timezone is set
+  community.general.timezone:
+    name: '{{ system_timezone }}'
+
+- name: Ensure the correct locale is set
+  community.general.locale_gen:
+    name: '{{ system_locale }}'
+
+- name: Ensure the maximum size for persistent journal is set
+  community.general.ini_file:
+    path: /etc/systemd/journald.conf
+    owner: root
+    group: root
+    mode: 0644
+    section: Journal
+    option: SystemMaxUse
+    value: 100M
+  notify: restart systemd-journald service

@@ -1,5 +1,0 @@
-- name: install base packages
-  tags: packages, dev
-  package:
-    name:
-      - terraform

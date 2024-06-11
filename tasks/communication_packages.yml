@@ -1,5 +1,0 @@
-- name: install base flatpaks
-  become: yes
-  flatpak:
-    name: com.slack.Slack
-    state: present

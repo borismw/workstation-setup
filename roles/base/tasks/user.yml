@@ -1,0 +1,103 @@
+---
+
+- name: Ensure {{ user_group }} group exists
+  ansible.builtin.group:
+    name: '{{ user_group }}'
+    state: present
+    gid: '{{ user_gid }}'
+
+- name: Ensure {{ user_name }} user exists
+  ansible.builtin.user:
+    name: '{{ user_name }}'
+    groups:
+      - '{{ user_group }}'
+      - audio
+      - lp
+      - network
+      - power
+      - rfkill
+      - sys
+      - video
+      - wheel
+    append: true
+    group: '{{ user_group }}'
+    uid: '{{ user_uid }}'
+    shell: '/bin/zsh'
+
+- name: Ensure the '{{ user_name }}' user can run 'sudo'
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    regex: '^# %wheel ALL=(ALL:ALL) ALL$'
+    line: '%wheel ALL=(ALL:ALL) ALL'
+    validate: 'visudo -cf %s'
+
+- name: Ensure the .ssh directory exists
+  become_user: '{{ user_name }}'
+  ansible.builtin.file:
+    path: '/home/{{ user_name }}/.ssh'
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: '0700'
+
+- name: Ensure the existence of a SSH keypair
+  become_user: '{{ user_name }}'
+  community.crypto.openssh_keypair:
+    path: '/home/{{ user_name }}/.ssh/id_rsa'
+  when:
+    - user_create_ssh_keypair|bool
+
+- name: Ensure extra home directories exist
+  become_user: '{{ user_name }}'
+  ansible.builtin.file:
+    path: '/home/{{ user_name }}/{{ item }}'
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: '0755'
+  loop: '{{ user_extra_home_dirs }}'
+
+- name: Ensure the required hidden directories exist
+  become_user: '{{ user_name }}'
+  ansible.builtin.file:
+    path: '/home/{{ user_name }}/{{ item }}'
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: '0755'
+  loop:
+    - .config
+    - .bin
+
+- name: Ensure bash directories exist
+  become_user: '{{ user_name }}'
+  ansible.builtin.file:
+    path: '/home/{{ user_name }}/{{ item }}'
+    state: directory
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: '0755'
+  loop:
+    - .bash_aliases.d
+    - .bash_env.d
+    - .bash_completions.d
+
+- name: Ensure bash configuration files exist
+  become_user: '{{ user_name }}'
+  ansible.builtin.copy:
+    src: 'home/{{ item }}'
+    dest: '/home/{{ user_name }}/'
+    owner: '{{ user_name }}'
+    group: '{{ user_group }}'
+    mode: '0644'
+  loop:
+    - .bash_logout
+    - .bash_profile
+    - .bashrc
+
+- name: Ensure user systemd directory exists
+  become_user: '{{ user_name }}'
+  ansible.builtin.file:
+    path: '/home/{{ user_name }}/.config/systemd/user'
+    mode: '0755'
+    state: directory

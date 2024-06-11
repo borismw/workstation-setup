@@ -1,0 +1,16 @@
+---
+
+galaxy_info:
+  role_name: base
+  author: User 01
+  description: Arch Linux base system configuration
+  license: BSD
+  min_ansible_version: 2.11
+  namespace: user01
+  platforms:
+    - name: ArchLinux
+      versions:
+        - any
+
+collections:
+  - kewlfft.aur
