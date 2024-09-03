@@ -1,5 +1,10 @@
 ---
-- hosts: all
+- hosts: archlinux-workstation
+  become: true
+  roles:
+    - base
+
+- hosts: parjanya
   become: true
   roles:
     - base
